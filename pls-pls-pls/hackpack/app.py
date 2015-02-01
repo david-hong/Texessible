@@ -5,6 +5,7 @@ from flask import Flask
 from flask import render_template
 from flask import url_for
 from flask import request
+import sendgrid
  
 from twilio import twiml
 from twilio.util import TwilioCapability
@@ -19,7 +20,12 @@ import twilioMaps
 app = Flask(__name__, static_url_path='/static')
 app.config.from_pyfile('local_settings.py')
  
- 
+text_body = ""
+subject = ""
+email_address = ""
+c = '"'
+c += "'"
+
 # Voice Request URL
 @app.route('/voice', methods=['GET', 'POST'])
 def voice():
@@ -45,24 +51,49 @@ def sms():
     
     for k in range (0, len(bodyList)):
         bodyList[k] = bodyList[k].lower()
-    if bodyList[0] == "gmail":
-        if bodyList[1] == "read":
-            if len(bodyList) == 2:
-                respons = "read first 10"
-            elif bodyList[2].isdigit():
-                respons = "read full certain email"
-            else:
-                respons = "error, gmail reading not recognized"
-        elif bodyList[1] == "reply":
-            if bodyList[2].isdigit():
-                respons = "respond to certain email"
-            else:
-                respons = "error, gmail reading not recognized"
-        elif bodyList[1] == "to":
+    if bodyList[0] == "email":
+        #if there is a two
+        if bodyList[1] == "to":
             if "@" in bodyList[2]:
-                respons = "send to email"
-            else:
-                respons = "invalid email"
+                email_address = bodyList[2]
+                if 're:' in bodyList[3].lower():
+                    a = len(bodyList)-1
+                    while bodyList[a][-1] not in c and a > 2:
+                        a = a - 1
+                    b = a + 1
+                    while b < len(bodyList):
+                        text_body += bodyList[b] + " "
+                        b +=1
+                    for b in range(3, a+1):
+                        subject += bodyList[b] + " "            
+        #if there is not a tuple
+        else:
+            if "@" in bodyList[1]:
+                email_address = bodyList[1]
+                #append the rest of the text as the content
+                if 're:' in bodyList[2].lower():
+                    #if there is a space after re: 
+                    a = len(bodyList)-1
+                    while a > 1 and bodyList[a][-1] not in c:
+                        a = a - 1
+                    b = a + 1
+                    while b < len(bodyList):
+                        text_body += bodyList[b] + " "
+                        b+=1
+                    for x in range(2, a+1):
+                        subject +=bodyList[b]+ " "
+                    
+                    #no space after re:, find element with last element quote
+        email_address = '<'+email_address+'>'
+
+        message = sendgrid.Mail()
+        message.add_to(email_address)
+        message.set_subject(subject)
+        message.set_html(text_body)
+        message.set_text('Sent from Ambiguous Texter')
+        message.set_from(user_from)
+        status, msg = sg.send(message)
+        respons = "sucessful email sent!"
     elif bodyList[0] == "directions":
         if bodyList[i] != "to":
             while i<len(bodyList) and bodyList[i] != "to":
