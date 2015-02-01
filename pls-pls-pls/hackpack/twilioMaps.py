@@ -27,9 +27,8 @@ class Directions:
     def printDirections(self):
         direc = Directions(self.startPoint, self.endLoc, self.endLocCitStat)
         result = direc.getDirections()
+        string = ""
         for i in range (0, len(result)):
-            print (str(i) + ": " + \
-            direc.parseDirections(result[i]['html_instructions']))
-
-bob = Directions("133 Broadview Ave, Toronto, On","26 Dundas Ave East", "Toronto, On")
-bob.printDirections()
+            string += (str(i) + ": " + \
+            direc.parseDirections(result[i]['html_instructions'])) + "\n"
+        return string
