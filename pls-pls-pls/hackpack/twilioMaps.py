@@ -12,7 +12,7 @@ class Directions:
         self.endLocCitStat = endStat
 
     def getDirections(self):
-        gmaps = googlemaps.Client(key='AIzaSyD_65i2dXl-bgq4Ei9ARkxTwg793I7_DV8')
+        gmaps = googlemaps.Client(key='API KEY')
         geocode_result = gmaps.geocode(self.startPoint)
         now = datetime.now()
         directions_result = gmaps.directions(self.endLoc,
