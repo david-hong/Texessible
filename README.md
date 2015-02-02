@@ -12,6 +12,7 @@ _Text us 'Weather {City}, {Province}', and we'll reply instantly._
 <img src="https://fbcdn-sphotos-h-a.akamaihd.net/hphotos-ak-xpf1/v/t34.0-12/10961722_913116825367081_476722182_n.jpg?oh=17931db711daa71defc063e6dbf6e0d8&oe=54D271D0&__gda__=1423062477_491c893a9644e9934e0eeac362b4c7a3" style='width: 10%'/> 
 <br> 
 <br>
+_Text us 'News' and we'll reply with the last 10 posts on your preferred RSS feed_
 <img src="https://fbcdn-sphotos-h-a.akamaihd.net/hphotos-ak-xpa1/v/t34.0-12/10967958_913117978700299_679134624_n.jpg?oh=9cea3d9ba7ce4c90098865352f831fcc&oe=54D24C04&__gda__=1423083291_cf6f1d4e3b477fa0808eb94ae201be20"/> <br>
 
 <h3> Navigation </h3>
