@@ -15,16 +15,15 @@ import forecastio
 from geopy import geocoders
 
 import twilioMaps
+import feedparser
  
 # Declare and configure application
 app = Flask(__name__, static_url_path='/static')
 app.config.from_pyfile('local_settings.py')
- 
-text_body = ""
-subject = ""
-email_address = ""
-c = '"'
-c += "'"
+
+#GET THIS SHIT FROM BODY OF MSG
+#ie. "Email to david.hong42@gmail.com Re: 'Nyaa' hihi"
+d = feedparser.parse('http://news.google.com/news?pz=1&cf=all&ned=us&hl=en&output=rss')
 
 # Voice Request URL
 @app.route('/voice', methods=['GET', 'POST'])
@@ -37,6 +36,12 @@ def voice():
  
 @app.route('/sms', methods=['POST'])
 def sms():
+    text_body = ""
+    subject = ""
+    email_address = ""
+
+    c = '"'
+    c += "'"
     response = twiml.Response()
     body = request.form['Body']
     bodyList = body.split( )
@@ -48,15 +53,25 @@ def sms():
     country = ""
     j = 1
     api_key = "73d4e3aa68e68f9d169121c88304c3dd"
-    
+
+    sg_username = "ambiguousoup"
+    sg_password = "Bamboozled123"
+    sg = sendgrid.SendGridClient(sg_username, sg_password)
+
     for k in range (0, len(bodyList)):
         bodyList[k] = bodyList[k].lower()
     if bodyList[0] == "email":
-        #if there is a two
+        sg_username = bodyList[1]
+        sg_password = bodyList[2]
+        user_name = bodyList[3]
+        user_email = bodyList[4]
+        user_from = user_email
+
+        bodyList = bodyList[5:] 
         if bodyList[1] == "to":
             if "@" in bodyList[2]:
                 email_address = bodyList[2]
-                if 're:' in bodyList[3].lower():
+                if 're:' in bodyList[3]:
                     a = len(bodyList)-1
                     while bodyList[a][-1] not in c and a > 2:
                         a = a - 1
@@ -65,34 +80,13 @@ def sms():
                         text_body += bodyList[b] + " "
                         b +=1
                     for b in range(3, a+1):
-                        subject += bodyList[b] + " "            
-        #if there is not a tuple
-        else:
-            if "@" in bodyList[1]:
-                email_address = bodyList[1]
-                #append the rest of the text as the content
-                if 're:' in bodyList[2].lower():
-                    #if there is a space after re: 
-                    a = len(bodyList)-1
-                    while a > 1 and bodyList[a][-1] not in c:
-                        a = a - 1
-                    b = a + 1
-                    while b < len(bodyList):
-                        text_body += bodyList[b] + " "
-                        b+=1
-                    for x in range(2, a+1):
-                        subject +=bodyList[b]+ " "
-                    
-                    #no space after re:, find element with last element quote
-        email_address = '<'+email_address+'>'
-
+                        subject += bodyList[b] + " "
         message = sendgrid.Mail()
         message.add_to(email_address)
         message.set_subject(subject)
         message.set_html(text_body)
-        message.set_text('Sent from Ambiguous Texter')
         message.set_from(user_from)
-        status, msg = sg.send(message)
+        sg.send(message)
         respons = "sucessful email sent!"
     elif bodyList[0] == "directions":
         if bodyList[i] != "to":
@@ -125,14 +119,15 @@ def sms():
             long = gn.geocode(city,True) [1] [1];
             forecast = forecastio.load_forecast(api_key, lat, long)
             respons = forecast.currently().summary + " " + str(forecast.currently().temperature) + " C"
-    elif bodyList[0] == "news":
-        respons ="get news"
+    elif bodyList[0] == "news" and len(bodyList) == 1:
+        respons = getSites()
+    elif bodyList[0] == "news" and bodyList[1].isdigit():
+        respons = getLinks(n=int(bodyList[1]))
     else:
-        respons = "error wtf are you doing"
+        respons = "incorrect messgae"
     response.sms(respons)
     return str(response)
- 
- 
+
 # Twilio Client demo template
 @app.route('/client')
 def client():
@@ -200,3 +195,13 @@ def index():
         'Client URL': url_for('.client', _external=True)}
     return render_template('index.html', params=params,
                            configuration_error=None)
+
+def getSites():
+    x = ""
+    for i in range (0, 10):
+        x += (str(i+1)+": " + d.entries[i]['title']+"\n")
+    return x
+
+def getLinks(n = 0):
+    x = (str(n+1)+": "+ d.entries[n]['link']+"\n")
+    return x
