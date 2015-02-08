@@ -29,8 +29,7 @@ d = feedparser.parse('http://news.google.com/news?pz=1&cf=all&ned=us&hl=en&outpu
 @app.route('/voice', methods=['GET', 'POST'])
 def voice():
     response = twiml.Response()
-    response.say("Congratulations! You deployed the Twilio Hackpack "
-                 "for Heroku and Flask.")
+    resp.play("http://demo.twilio.com/hellomonkey/monkey.mp3")
     return str(response)
  
  
@@ -94,14 +93,10 @@ def sms():
                 f += bodyList[i] + " "
                 i+=1
             i+=1
-            while i<len(bodyList) and bodyList[i] != ",":
+            while i<len(bodyList):
                 toCity += bodyList[i] + " "
                 i+=1
-            i+= 1
-            while i<len(bodyList):
-                to += bodyList[i] + " "
-                i+=1
-            bob = Directions(f,toCity,to)
+            bob = Directions(f, toCity)
             string = bob.printDirections()
             if(len(string)>1000):
                 respons = string[0:1000]

@@ -6,17 +6,16 @@ import re
 
 class Directions:
     #address only street & number, stat is province, country
-    def __init__(self, start = "", endAddress = "", endStat = ""):
+    def __init__(self, start = "", endAddress = ""):
         self.startPoint = start
         self.endLoc = endAddress
-        self.endLocCitStat = endStat
 
     def getDirections(self):
-        gmaps = googlemaps.Client(key='API KEY')
+        gmaps = googlemaps.Client(key='AIzaSyD_65i2dXl-bgq4Ei9ARkxTwg793I7_DV8')
         geocode_result = gmaps.geocode(self.startPoint)
         now = datetime.now()
-        directions_result = gmaps.directions(self.endLoc,
-                                             self.endLocCitStat,
+        directions_result = gmaps.directions(self.startPoint,
+                                             self.endLoc,
                                              mode="driving", departure_time=now)
         return directions_result[0]['legs'][0]['steps']
 
@@ -25,7 +24,7 @@ class Directions:
         return result
 
     def printDirections(self):
-        direc = Directions(self.startPoint, self.endLoc, self.endLocCitStat)
+        direc = Directions(self.startPoint, self.endLoc)
         result = direc.getDirections()
         string = ""
         for i in range (0, len(result)):
