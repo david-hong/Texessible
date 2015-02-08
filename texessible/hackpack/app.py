@@ -22,7 +22,6 @@ app = Flask(__name__, static_url_path='/static')
 app.config.from_pyfile('local_settings.py')
 
 #GET THIS SHIT FROM BODY OF MSG
-#ie. "Email to david.hong42@gmail.com Re: 'Nyaa' hihi"
 d = feedparser.parse('http://news.google.com/news?pz=1&cf=all&ned=us&hl=en&output=rss')
 
 # Voice Request URL
@@ -51,20 +50,22 @@ def sms():
     city =""
     country = ""
     j = 1
-    api_key = "73d4e3aa68e68f9d169121c88304c3dd"
+    api_key = "#"
 
-    sg_username = "ambiguousoup"
-    sg_password = "Bamboozled123"
-    sg = sendgrid.SendGridClient(sg_username, sg_password)
-
-    for k in range (0, len(bodyList)):
-        bodyList[k] = bodyList[k].lower()
+    bodyList[0] = bodyList[0].lower()
+    if bodyList[0] == "email":
+        for k in range (3, len(bodyList)):
+            bodyList[k] = bodyList[k].lower()
+    else:
+        for k in range (1, len(bodyList)):
+            bodyList[k] = bodyList[k].lower()
     if bodyList[0] == "email":
         sg_username = bodyList[1]
         sg_password = bodyList[2]
         user_name = bodyList[3]
         user_email = bodyList[4]
         user_from = user_email
+        sg = sendgrid.SendGridClient(sg_username, sg_password)
 
         bodyList = bodyList[5:] 
         if bodyList[1] == "to":
@@ -109,7 +110,7 @@ def sms():
             while j<len(bodyList) and bodyList[j] != ",":
                 city += bodyList[j]
                 j+=1
-            gn = geocoders.GeoNames(country, "d22hong")
+            gn = geocoders.GeoNames(country, "#")
             lat = gn.geocode(city,True) [1] [0];
             long = gn.geocode(city,True) [1] [1];
             forecast = forecastio.load_forecast(api_key, lat, long)
