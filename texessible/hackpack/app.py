@@ -21,16 +21,12 @@ import feedparser
 app = Flask(__name__, static_url_path='/static')
 app.config.from_pyfile('local_settings.py')
 
-#GET THIS SHIT FROM BODY OF MSG
-d = feedparser.parse('http://news.google.com/news?pz=1&cf=all&ned=us&hl=en&output=rss')
-
 # Voice Request URL
 @app.route('/voice', methods=['GET', 'POST'])
 def voice():
     response = twiml.Response()
     resp.play("http://demo.twilio.com/hellomonkey/monkey.mp3")
     return str(response)
- 
  
 @app.route('/sms', methods=['POST'])
 def sms():
@@ -56,7 +52,7 @@ def sms():
     if bodyList[0] == "email":
         for k in range (3, len(bodyList)):
             bodyList[k] = bodyList[k].lower()
-    else:
+    elif bodyList[0] != "news":
         for k in range (1, len(bodyList)):
             bodyList[k] = bodyList[k].lower()
     if bodyList[0] == "email":
@@ -116,9 +112,14 @@ def sms():
             forecast = forecastio.load_forecast(api_key, lat, long)
             respons = forecast.currently().summary + " " + str(forecast.currently().temperature) + " C"
     elif bodyList[0] == "news" and len(bodyList) == 1:
+        d = feedparser.parse('http://news.google.com/news?pz=1&cf=all&ned=us&hl=en&output=rss')
         respons = getSites()
-    elif bodyList[0] == "news" and bodyList[1].isdigit():
-        respons = getLinks(n=int(bodyList[1]))
+    elif bodyList[0] == "news" and len(bodyList) == 2:
+        d = feedparser.parse(bodyList[1])
+        respons = getSites(d)
+    elif bodyList[0] == "news" and bodyList[2].isdigit():
+        d = feedparser.parse(bodyList[1])
+        respons = getLinks(d,n=int(bodyList[2]))
     else:
         respons = "incorrect messgae"
     response.sms(respons)
@@ -192,12 +193,12 @@ def index():
     return render_template('index.html', params=params,
                            configuration_error=None)
 
-def getSites():
+def getSites(d):
     x = ""
     for i in range (0, 10):
         x += (str(i+1)+": " + d.entries[i]['title']+"\n")
     return x
 
-def getLinks(n = 0):
+def getLinks(d,n = 0):
     x = (str(n+1)+": "+ d.entries[n]['link']+"\n")
     return x
